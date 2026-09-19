@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMART DM</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    // Konfigurasi Babel untuk memastikan async/await berjalan normal di browser
+    Babel.registerPreset('my-custom-preset', {
+      presets: [
+        [Babel.availablePresets['env'], { targets: "> 0.25%, not dead" }],
+        [Babel.availablePresets['react'], { runtime: 'classic' }]
+      ]
+    });
+  </script>
+  
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@0.288.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* Menyembunyikan Scrollbar Bawaan (Alat Bantu Naik/Turun) */
+    ::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    * {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    /* Custom Animations for the Floating Background */
+    @keyframes float {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    
+    @keyframes menuFloat {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(0.5deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+    
+    @keyframes panelFloat {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* Animasi Efek Mengetik */
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #075985; }
+    }
+
+    /* --- ANIMASI LOGIN BARU --- */
+    @keyframes spin-slow {
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes spin-reverse {
+      100% { transform: rotate(-360deg); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes tilt {
+      0%, 50%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(0.5deg) scale(1.01); }
+      75% { transform: rotate(-0.5deg) scale(1.01); }
+    }
+
+    .animate-spin-slow { animation: spin-slow 3s linear infinite; }
+    .animate-spin-reverse { animation: spin-reverse 2.5s linear infinite; }
+    .animate-tilt { animation: tilt 7s infinite linear; }
+    
+    .btn-shimmer {
+      background: linear-gradient(110deg, #0ea5e9 0%, #2563eb 40%, #60a5fa 50%, #2563eb 60%, #0ea5e9 100%);
+      background-size: 200% auto;
+      transition: all 0.5s ease;
+    }
+    .btn-shimmer:hover {
+      background-position: right center;
+    }
+
+    .animate-typewriter {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid #075985;
+      animation: typing 3s steps(50, end) forwards, blink-caret 0.75s step-end infinite;
+    }
+
+    .floating-menu { animation: menuFloat 6s ease-in-out infinite; }
+    .floating-panel-delay-0 { animation: panelFloat 7s ease-in-out infinite; }
+    .floating-panel-delay-1 { animation: panelFloat 6.5s ease-in-out infinite 1s; }
+    .floating-panel-delay-2 { animation: panelFloat 8s ease-in-out infinite 2s; }
+
+    .blob {
+      position: fixed;
+      filter: blur(90px);
+      z-index: 0;
+      opacity: 0.7;
+      animation: float 20s infinite ease-in-out;
+      border-radius: 50%;
+    }
+    /* Warna original: Biru Muda Profesional */
+    .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #bae6fd; animation-delay: 0s; } 
+    .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #bfdbfe; animation-delay: -5s; } 
+    .blob-3 { top: 30%; left: 30%; width: 40vw; height: 40vw; background: #e0f2fe; animation-delay: -10s; } 
+    
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.1);
+    }
+    
+    /* Gradient Utama: Biru Langit ke Biru Professional */
+    .glass-button {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4);
+    }
+    .glass-button:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
+      box-shadow: 0 15px 30px -5px rgba(14, 165, 233, 0.5);
+    }
+
+    .glass-menu {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- TAMBAHAN STYLE UNTUK ANIMASI PROCESSING BARU --- */
+    .glass-loader-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(35px);
+      -webkit-backdrop-filter: blur(35px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="my-custom-preset">
+    // =========================================================================
+    // KONFIGURASI API BACKEND (GITHUB PAGES CONFIG)
+    // =========================================================================
+    // TEMPEL SCRIPT URL ANDA DI SINI!! (Harus berakhiran dengan /exec)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUn_5IZzbPYR2jQESy7C1dfKbuPeLPaczpLUCp5KvZXaEbv98LenxlObxyT9zckoBq/exec';
+    
+    const { useState, useEffect, useRef } = React;
+    
+    const iconMap = {
+      FileUp: 'file-up', Download: 'download', Search: 'search', Trash2: 'trash-2',
+      FileSpreadsheet: 'file-spreadsheet', CheckCircle2: 'check-circle-2', AlertCircle: 'alert-circle',
+      Loader2: 'loader-2', Filter: 'filter', Users: 'users', Activity: 'activity', FolderOpen: 'folder-open',
+      AlertTriangle: 'alert-triangle', ChevronRight: 'chevron-right', RefreshCw: 'refresh-cw',
+      UploadCloud: 'upload-cloud', Database: 'database', Check: 'check', ArrowRight: 'arrow-right',
+      ArrowLeft: 'arrow-left', CloudUpload: 'cloud-upload', BarChart3: 'bar-chart-3', LayoutDashboard: 'layout-dashboard',
+      Copy: 'copy', Home: 'home', User: 'user', Lock: 'lock', LogIn: 'log-in', ExternalLink: 'external-link'
+    };
+
+    const createLucideIcon = (name) => {
+      const kebabName = iconMap[name];
+      return ({ className }) => {
+        const spanRef = React.useRef(null);
+        React.useEffect(() => {
+          if (spanRef.current && window.lucide) {
+            spanRef.current.innerHTML = `<i data-lucide="${kebabName}" class="${className || ''}"></i>`;
+            window.lucide.createIcons({ root: spanRef.current, icons: window.lucide.icons });
+          }
+        }, [className]);
+        return <span ref={spanRef} style={{ display: 'contents' }} />;
+      };
+    };
+
+    const FileUp = createLucideIcon('FileUp');
+    const Download = createLucideIcon('Download');
+    const Search = createLucideIcon('Search');
+    const Trash2 = createLucideIcon('Trash2');
+    const FileSpreadsheet = createLucideIcon('FileSpreadsheet');
+    const CheckCircle2 = createLucideIcon('CheckCircle2');
+    const AlertCircle = createLucideIcon('AlertCircle');
+    const Loader2 = createLucideIcon('Loader2');
+    const Filter = createLucideIcon('Filter');
+    const Users = createLucideIcon('Users');
+    const Activity = createLucideIcon('Activity');
+    const FolderOpen = createLucideIcon('FolderOpen');
+    const AlertTriangle = createLucideIcon('AlertTriangle');
+    const ChevronRight = createLucideIcon('ChevronRight');
+    const RefreshCw = createLucideIcon('RefreshCw');
+    const UploadCloud = createLucideIcon('UploadCloud');
+    const Database = createLucideIcon('Database');
+    const Check = createLucideIcon('Check');
+    const ArrowRight = createLucideIcon('ArrowRight');
+    const ArrowLeft = createLucideIcon('ArrowLeft');
+    const CloudUpload = createLucideIcon('CloudUpload');
+    const BarChart3 = createLucideIcon('BarChart3');
+    const LayoutDashboard = createLucideIcon('LayoutDashboard');
+    const Copy = createLucideIcon('Copy');
+    const Home = createLucideIcon('Home');
+    const User = createLucideIcon('User');
+    const Lock = createLucideIcon('Lock');
+    const LogIn = createLucideIcon('LogIn');
+    const ExternalLink = createLucideIcon('ExternalLink');
+
+    const DMLogo = ({ className }) => (
+      <svg className={className} viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 0C50 0 10 50 10 80C10 102.091 27.9086 120 50 120C72.0914 120 90 102.091 90 80C90 62 76 38 50 0Z" fill="#D90000"/>
+        <path d="M25 85C25 100 35 108 50 108" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" fill="none"/>
+        <g transform="translate(45, 30)">
+          <path d="M22.5 0L45 10V35L22.5 45L0 35V10L22.5 0Z" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="4" strokeLinejoin="round"/>
+          <path d="M0 10L22.5 20L45 10" stroke="#E2E8F0" strokeWidth="4" strokeLinejoin="round"/>
+          <path d="M22.5 20V45" stroke="#E2E8F0" strokeWidth="4" strokeLinejoin="round"/>
+        </g>
+      </svg>
+    );
+
+    const ChartCard = ({ title, labels, data, color }) => {
+      const canvasRef = useRef(null);
+      const chartInstance = useRef(null);
+
+      useEffect(() => {
+        if (!canvasRef.current) return;
+        if (chartInstance.current) chartInstance.current.destroy();
+
+        const ctx = canvasRef.current.getContext('2d');
+        chartInstance.current = new window.Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: title,
+              data: data,
+              backgroundColor: color + '90',
+              borderColor: color,
+              borderWidth: 2,
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              title: { 
+                display: true, 
+                text: title, 
+                font: { size: 14, family: 'system-ui', weight: 'bold' },
+                color: '#1e293b',
+                padding: { bottom: 20 }
+              }
+            },
+            scales: {
+              y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+        return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+      }, [labels, data, title, color]);
+
+      return (
+        <div className="glass-panel p-5 md:p-6 rounded-[2rem] border border-white/60 shadow-xl relative h-[300px] flex items-center justify-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white/40">
+          <canvas ref={canvasRef}></canvas>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [loginForm, setLoginForm] = useState({ username: '' });
+      const [isLoggingIn, setIsLoggingIn] = useState(false);
+      const [loginAnimatingOut, setLoginAnimatingOut] = useState(false);
+
+      const [step, setStep] = useState(1); 
+      const [toast, setToast] = useState({ show: false, msg: '', sub: '', type: 'success' });
+      const [isProcessing, setIsProcessing] = useState(false);
+      const [isSavingToSheet, setIsSavingToSheet] = useState(false);
+      
+      const [showDashboard, setShowDashboard] = useState(false);
+      const [dashboardData, setDashboardData] = useState(null);
+      const [userTargetUrl, setUserTargetUrl] = useState('');
+      const [userKemenkesUrl, setUserKemenkesUrl] = useState('');
+
+      const [isAutoTransitioning, setIsAutoTransitioning] = useState(false);
+      const [isAutoTransitioningFinal, setIsAutoTransitioningFinal] = useState(false);
+
+      const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, type: 'warning' });
+
+      const [database, setDatabase] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+      
+      const [fileDM, setFileDM] = useState(null);
+      const [dragActiveDM, setDragActiveDM] = useState(false);
+      const [syncStatusMsg, setSyncStatusMsg] = useState(null);
+
+      const showToast = (msg, sub = 'Berhasil', type = 'success') => {
+        setToast({ show: true, msg, sub, type });
+        setTimeout(() => setToast({ show: false, msg: '', sub: '', type: 'success' }), 5000);
+      };
+
+      const triggerConfirm = (title, message, onConfirm, type = 'warning') => {
+        setConfirmModal({ show: true, title, message, onConfirm, type });
+      };
+
+      const closeConfirm = () => setConfirmModal({ ...confirmModal, show: false });
+
+      const resetAllData = () => {
+        setDatabase([]); setFileDM(null); setSyncStatusMsg(null); setStep(1); setSearchQuery(''); setShowDashboard(false); setDashboardData(null);
+      };
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        if (SCRIPT_URL.includes('GANTI_DENGAN_URL_ANDA')) {
+            showToast('Konfigurasi Dibutuhkan', 'Ganti SCRIPT_URL dengan Web App URL API Anda di script.', 'warning');
+            return;
+        }
+
+        setIsLoggingIn(true);
+        try {
+          const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(loginForm.username)}`);
+          const result = await response.json();
+          
+          if (result.success && result.data && result.data.valid) {
+            setUserTargetUrl(result.data.targetUrl);
+            setUserKemenkesUrl(result.data.kemenkesUrl);
+            triggerLoginSuccess();
+          } else {
+             if (result.error) showToast('Error Server', result.error, 'error');
+             else showToast('Gagal Login', 'Username tidak terdaftar di Database', 'error');
+             setIsLoggingIn(false);
+          }
+        } catch (error) {
+          showToast('Error Koneksi', 'Gagal memverifikasi ke server API: ' + error.message, 'error');
+          setIsLoggingIn(false);
+        }
+      };
+
+      const triggerLoginSuccess = () => {
+        setLoginAnimatingOut(true);
+        setTimeout(() => {
+          setIsLoggedIn(true); setIsLoggingIn(false);
+          showToast('Berhasil Masuk', 'Selamat datang di SMART DM', 'success');
+        }, 1000);
+      };
+
+      const loadDashboardDirectly = async () => {
+        setIsProcessing(true);
+        try {
+          const response = await fetch(`${SCRIPT_URL}?action=getRekap&targetUrl=${encodeURIComponent(userTargetUrl)}`);
+          const result = await response.json();
+          setIsProcessing(false);
+          if (result.success && result.data && result.data.labels) {
+            setDashboardData(result.data); setShowDashboard(true); setStep(3);
+            showToast("Dashboard Terbuka", "Data berhasil diambil dari Google Sheets", "success");
+          } else {
+             if (result.error) showToast("Error Akses Link", result.error, "error");
+             else showToast("Info Dashboard", "Data grafik rekap belum tersedia atau kosong.", "warning");
+          }
+        } catch (error) {
+          setIsProcessing(false); showToast("Error Load Grafik", error.message, "error");
+        }
+      };
+
+      const handleResetDatabase = () => {
+        triggerConfirm('Reset Data Spreadsheet', 'PERINGATAN: Menghapus isian pada kolom C-R pada Sheet "Puskesmas". Lanjutkan?', 
+          async () => {
+            setIsProcessing(true);
+            try {
+              const response = await fetch(SCRIPT_URL, {
+                method: 'POST', body: JSON.stringify({ action: 'resetData', targetUrl: userTargetUrl })
+              });
+              const result = await response.json();
+              setIsProcessing(false);
+              if (result.success) {
+                  resetAllData(); showToast("Berhasil Dikosongkan", result.data.status || 'Berhasil', "success");
+              } else {
+                  showToast("Error", result.error || 'Terjadi kesalahan sistem', "error");
+              }
+            } catch (error) {
+              setIsProcessing(false); showToast("Error Koneksi", error.message, "error");
+            }
+          }, 'danger'
+        );
+      };
+
+      const handleCopyReport = async () => {
+        setIsProcessing(true);
+        try {
+          const response = await fetch(`${SCRIPT_URL}?action=copyRekap&targetUrl=${encodeURIComponent(userTargetUrl)}`);
+          const result = await response.json();
+          setIsProcessing(false);
+          if (result.success && result.data.text && result.data.text !== "Error") {
+            const textArea = document.createElement("textarea");
+            textArea.value = result.data.text; document.body.appendChild(textArea); textArea.select();
+            try { document.execCommand('copy'); showToast("Berhasil Disalin", "Isian Rekap siap di-paste.", "success"); } 
+            catch (err) { showToast("Gagal Menyalin", "Browser Anda memblokir fungsi copy.", "error"); }
+            document.body.removeChild(textArea);
+          } else {
+             showToast("Gagal Menyalin", result.error || "Data rekap gagal diambil.", "error");
+          }
+        } catch (error) {
+          setIsProcessing(false); showToast("Error Jaringan", error.message, "error");
+        }
+      };
+
+      const handleOpenPasteLink = () => {
+        if (userKemenkesUrl && String(userKemenkesUrl).trim().startsWith('http')) {
+          window.open(String(userKemenkesUrl).trim(), '_blank');
+          showToast("Membuka Link", "Membuka web Kemenkes...", "success");
+        } else {
+          showToast("Link Tidak Valid", "Pastikan Kolom C berisi link valid.", "error");
+        }
+      };
+
+      const parseLabNumber = (val) => {
+        if (val === null || val === undefined) return null;
+        const str = String(val).trim().replace(',', '.');
+        const match = str.match(/[-+]?[0-9]*\.?[0-9]+/);
+        if (match && match[0] !== '') {
+          const num = parseFloat(match[0]); return isNaN(num) ? null : num;
+        }
+        return null;
+      };
+
+      const getSmallestLabValue = (val1, val2) => {
+        if (!val1 || val1 === '-') return val2 || '-';
+        if (!val2 || val2 === '-') return val1;
+        const num1 = parseLabNumber(val1); const num2 = parseLabNumber(val2);
+        if (num1 !== null && num2 !== null) return num2 < num1 ? val2 : val1;
+        if (num1 !== null && num2 === null) return val1;
+        if (num1 === null && num2 !== null) return val2;
+        return val1 || val2 || 'V';
+      };
+
+      const getMonthIndex = (value) => {
+        if (!value) return -1;
+        const strVal = String(value).trim(); const parts = strVal.split(/[-.\/]/);
+        if (parts.length >= 2) { const mPart = parseInt(parts[1], 10); if (mPart >= 1 && mPart <= 12) return mPart - 1; }
+        const cleanDigits = strVal.replace(/[^0-9]/g, '');
+        if (cleanDigits.length === 6) { const mPart = parseInt(cleanDigits.substring(2, 4), 10); if (mPart >= 1 && mPart <= 12) return mPart - 1; }
+        let date;
+        if (value instanceof Date) date = value;
+        else if (typeof value === 'number') date = new Date(Math.round((value - 25569) * 86400 * 1000));
+        else { const parsed = new Date(value); if (!isNaN(parsed.getTime())) date = parsed; }
+        return date && !isNaN(date.getTime()) ? date.getMonth() : -1;
+      };
+
+      const getCellValueDeep = (worksheet, r, c) => {
+        const XLSX = window.XLSX; if (!XLSX) return "";
+        if (worksheet['!merges']) {
+          for (const merge of worksheet['!merges']) {
+            if (r >= merge.s.r && r <= merge.e.r && c >= merge.s.c && c <= merge.e.c) {
+              const firstCell = worksheet[XLSX.utils.encode_cell({ r: merge.s.r, c: merge.s.c })]; return firstCell ? (firstCell.w || firstCell.v || "") : "";
+            }
+          }
+        }
+        const cell = worksheet[XLSX.utils.encode_cell({ r, c })]; return cell ? (cell.w || (cell.v !== undefined ? String(cell.v) : "")) : "";
+      };
+
+      const handleMonitoringUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length || !window.XLSX) return;
+        setIsProcessing(true);
+        let updatedDatabase = [...database]; let totalNew = 0; let totalUpdated = 0;
+
+        try {
+          const validFiles = files.filter(file => file.name.match(/\.(xlsx|xls|csv)$/i));
+          if (validFiles.length === 0) { showToast('Gagal', 'Tidak ditemukan file Excel yang valid', 'error'); return; }
+
+          for (const file of validFiles) {
+            const data = await file.arrayBuffer();
+            const workbook = window.XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true, cellText: true });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            if (!sheet || !sheet['!ref']) continue;
+            const range = window.XLSX.utils.decode_range(sheet['!ref']);
+
+            for (let r = 10; r <= range.e.r; r += 2) {
+              const rawB = getCellValueDeep(sheet, r, 1);
+              const rawF = getCellValueDeep(sheet, r, 5) || getCellValueDeep(sheet, r, 4) || getCellValueDeep(sheet, r, 6);
+              const rawV = getCellValueDeep(sheet, r, 21);
+              const colD = getCellValueDeep(sheet, r, 3); const colE = getCellValueDeep(sheet, r, 4);
+              const colF = getCellValueDeep(sheet, r, 5); const colG = getCellValueDeep(sheet, r, 6);
+              const colH = getCellValueDeep(sheet, r, 7); const colL = getCellValueDeep(sheet, r, 11);
+
+              if (!rawF || rawF === "-" || rawF === "Data_Pasien") continue;
+              
+              const monthIdx = getMonthIndex(rawB); const patientId = rawF;
+              const existingIndex = updatedDatabase.findIndex(p => String(p.id).trim().toLowerCase() === String(patientId).trim().toLowerCase());
+              const incomingLab = (rawV !== undefined && rawV !== null && String(rawV).trim() !== "") ? String(rawV).trim() : "V";
+
+              if (existingIndex !== -1) {
+                if (monthIdx !== -1) updatedDatabase[existingIndex].months[monthIdx] = getSmallestLabValue(updatedDatabase[existingIndex].months[monthIdx], incomingLab);
+                if (!updatedDatabase[existingIndex].desa || updatedDatabase[existingIndex].desa === 'TIDAK DIKETAHUI') {
+                  updatedDatabase[existingIndex].desa = colH || 'TIDAK DIKETAHUI'; updatedDatabase[existingIndex].colD = colD || '';
+                  updatedDatabase[existingIndex].colE = colE || ''; updatedDatabase[existingIndex].colF = colF || '';
+                  updatedDatabase[existingIndex].colG = colG || ''; updatedDatabase[existingIndex].colL = colL || '';
+                }
+                totalUpdated++;
+              } else {
+                const newPatient = {
+                  id: patientId, name: rawF, info: file.name, months: new Array(12).fill('-'), diagnosaDate: '-',
+                  desa: colH || 'TIDAK DIKETAHUI', colD: colD || '', colE: colE || '', colF: colF || '', colG: colG || '', colL: colL || ''
+                };
+                if (monthIdx !== -1) newPatient.months[monthIdx] = incomingLab;
+                updatedDatabase.push(newPatient); totalNew++;
+              }
+            }
+          }
+          setDatabase(updatedDatabase); showToast('Matriks Berhasil Diperbarui', `${totalNew} Baru, ${totalUpdated} Diperbarui`, 'success');
+          
+          if (step === 1 && (totalNew > 0 || totalUpdated > 0)) {
+            setIsAutoTransitioning(true);
+            setTimeout(() => { showToast('Transisi Otomatis', 'Menuju Sinkronisasi...', 'success'); }, 500);
+            setTimeout(() => { setStep(2); setIsAutoTransitioning(false); }, 2500);
+          }
+        } catch (err) { showToast('Gagal memproses file', 'Kesalahan format', 'error'); } 
+        finally { setIsProcessing(false); e.target.value = null; }
+      };
+
+      const getTodayString = () => {
+        const today = new Date(); const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0'); const year = today.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      const extractValidDate = (cell) => {
+        if (!cell || cell.v === undefined || cell.v === null) return null;
+        let dateObj = null;
+        if (cell.v instanceof Date) dateObj = cell.v;
+        else if (typeof cell.v === 'number' && cell.v > 1000) dateObj = new Date(Math.round((cell.v - 25569) * 86400 * 1000));
+        else if (typeof cell.v === 'string') { const parsed = new Date(cell.v.trim()); if (!isNaN(parsed.getTime())) dateObj = parsed; }
+        if (!dateObj || isNaN(dateObj.getTime())) return null;
+        const day = String(dateObj.getDate()).padStart(2, '0'); const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      const handleSyncProcess = async (uploadedFile = fileDM) => {
+        if (!uploadedFile || !window.XLSX || database.length === 0) return;
+        setIsProcessing(true); setSyncStatusMsg(null);
+        try {
+          const dmData = await uploadedFile.arrayBuffer(); const XLSX = window.XLSX;
+          const workbookDM = XLSX.read(new Uint8Array(dmData), { type: 'array', cellDates: true });
+          const dmSheet = workbookDM.Sheets[workbookDM.SheetNames[0]];
+          if (!dmSheet['!ref']) throw new Error("Format sheet DM tidak valid");
+
+          const dmMap = new Map(); const dmRange = XLSX.utils.decode_range(dmSheet['!ref']);
+          for (let r = 9; r <= dmRange.e.r; r++) {
+            const cellC = dmSheet[XLSX.utils.encode_cell({r: r, c: 2})]; const cellE = dmSheet[XLSX.utils.encode_cell({r: r, c: 4})]; 
+            if (cellC && cellC.v !== undefined) {
+              let key = cellC.v.toString().trim().toLowerCase(); let validDateStr = extractValidDate(cellE);
+              if (validDateStr) dmMap.set(key, validDateStr);
+            }
+          }
+
+          let matchCount = 0; let autoFillCount = 0; const todayFormatted = getTodayString();
+          const updatedDatabase = database.map(patient => {
+            const idKey = String(patient.id).trim().toLowerCase(); const nameKey = String(patient.name).trim().toLowerCase();
+            let diagDate = todayFormatted;
+            if (dmMap.has(idKey)) { diagDate = dmMap.get(idKey); matchCount++; } 
+            else if (dmMap.has(nameKey)) { diagDate = dmMap.get(nameKey); matchCount++; } 
+            else { autoFillCount++; }
+            return { ...patient, diagnosaDate: diagDate };
+          });
+
+          setDatabase(updatedDatabase);
+          setSyncStatusMsg({ type: 'success', text: `Berhasil! ${matchCount} cocok. ${autoFillCount} baru.` });
+          setIsAutoTransitioningFinal(true); showToast('Selesai', 'Menyimpan ke server...', 'success');
+          
+          setTimeout(() => { setStep(3); setIsAutoTransitioningFinal(false); saveToGoogleSheets(updatedDatabase); }, 1800);
+        } catch (err) {
+          setSyncStatusMsg({ type: 'error', text: 'GAGAL membaca file DM.' }); showToast('Gagal', 'Periksa file Excel Anda.', 'error');
+        } finally { setIsProcessing(false); }
+      };
+
+      const exportFinalExcel = () => {
+        const XLSX = window.XLSX;
+        if (database.length === 0) { showToast('Gagal', 'Tidak ada data', 'error'); return; }
+        const wb = XLSX.utils.book_new(); const monthHeaders = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+        const todayStr = getTodayString();
+        const groupedData = {};
+
+        database.forEach(p => {
+          let desaName = p.desa ? String(p.desa).trim().toUpperCase() : 'TANPA_DESA';
+          if (desaName === '') desaName = 'TANPA_DESA';
+          const safeDesaName = desaName.replace(/[\[\]\*?\/\:\\]/g, '').substring(0, 31);
+          if (!groupedData[safeDesaName]) groupedData[safeDesaName] = [];
+          groupedData[safeDesaName].push(p);
+        });
+
+        Object.keys(groupedData).forEach(desa => {
+          const dataDesa = groupedData[desa];
+          const worksheetData = [ ["REKAP PELAYANAN PASIEN"], ["DESA: " + desa], [], ["NAMA", "TEMPAT & TANGGAL LAHIR", "NIK", "ALAMAT", "JENIS KELAMIN", "TGL DIAGNOSA", ...monthHeaders] ];
+          dataDesa.forEach(p => {
+            const cleanedMonths = p.months.map(m => m === '-' ? '' : m);
+            const finalDate = p.diagnosaDate === todayStr ? "01/01/2025" : p.diagnosaDate;
+            worksheetData.push([p.colD, p.colE, p.colF, p.colG, p.colL, finalDate, ...cleanedMonths]);
+          });
+          const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+          ws['!cols'] = [ {wch: 25}, {wch: 25}, {wch: 20}, {wch: 35}, {wch: 15}, {wch: 15}, ...monthHeaders.map(() => ({wch: 6})) ];
+          XLSX.utils.book_append_sheet(wb, ws, desa);
+        });
+        XLSX.writeFile(wb, `Laporan_Pelayanan_Desa_${new Date().getFullYear()}.xlsx`); showToast('Berhasil', 'Laporan diunduh', 'success');
+      };
+
+      const saveToGoogleSheets = async (dataToSave = database) => {
+        if (dataToSave.length === 0) return;
+        setIsSavingToSheet(true);
+        const todayStr = getTodayString();
+        const dataC = dataToSave.map(p => [p.name]); 
+        const dataD = dataToSave.map(p => [p.diagnosaDate === todayStr ? "01/01/2025" : p.diagnosaDate]); 
+        const dataGR = dataToSave.map(p => p.months.map(m => m === '-' ? '' : m)); 
+
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveData', targetUrl: userTargetUrl, dataC: dataC, dataD: dataD, dataGR: dataGR })
+          });
+          const result = await response.json();
+          if(result.success && result.data.status === "SUCCESS") {
+            showToast("Berhasil Disimpan", "Menyiapkan Dashboard Grafik...", "success"); loadDashboardDirectly();
+          } else { setIsSavingToSheet(false); showToast("Gagal Disimpan", result.error || result.data.status, "error"); }
+        } catch (error) { setIsSavingToSheet(false); showToast("Error Koneksi", error.message, "error"); }
+      };
+
+      const getTransitionClass = (targetStep) => {
+        if (step === targetStep) return 'opacity-100 translate-x-0 scale-100 blur-none relative z-10 pointer-events-auto transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]';
+        if (step > targetStep) return 'opacity-0 -translate-x-20 scale-[0.98] blur-md absolute top-0 pointer-events-none z-0 transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]';
+        return 'opacity-0 translate-x-20 scale-[0.98] blur-md absolute top-0 pointer-events-none z-0 transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]';
+      };
+
+      return (
+        <div className="min-h-screen relative overflow-hidden bg-[#f0f9ff] text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 flex flex-col">
+          <div className="fixed inset-0 pointer-events-none z-0">
+            <div className="blob blob-1"></div>
+            <div className="blob blob-2"></div>
+            <div className="blob blob-3"></div>
+          </div>
+
+          {!isLoggedIn && (
+            <div className={`fixed inset-0 z-[200] flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${loginAnimatingOut ? 'opacity-0 scale-110 pointer-events-none blur-xl' : 'opacity-100 scale-100 bg-slate-900/5 backdrop-blur-[2px]'}`}>
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-sky-400/30 to-blue-500/20 blur-[100px] animate-pulse" style={{animationDuration: '7s'}}></div>
+                <div className="absolute -bottom-[10%] -right-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-bl from-blue-400/20 to-emerald-400/20 blur-[100px] animate-pulse" style={{animationDuration: '9s', animationDelay: '1s'}}></div>
+              </div>
+
+              <div className="relative w-[90%] max-w-md group z-10">
+                <div className={`absolute -inset-[3px] bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-[2.5rem] blur-lg opacity-60 group-hover:opacity-100 transition duration-1000 animate-tilt ${isLoggingIn ? 'opacity-0' : 'opacity-60'}`}></div>
+                <div className="bg-white/70 backdrop-blur-3xl p-8 md:p-10 rounded-[2.5rem] shadow-[0_8px_40px_0_rgba(14,165,233,0.15)] border border-white relative overflow-hidden flex flex-col items-center transition-all duration-500">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-80"></div>
+                  <div className={`w-full transition-all duration-700 ease-in-out ${isLoggingIn ? 'opacity-0 scale-95 h-0 overflow-hidden absolute' : 'opacity-100 scale-100 relative'}`}>
+                    <div className="flex flex-col items-center">
+                      <div className="w-20 h-20 bg-gradient-to-br from-white to-sky-50 p-4 rounded-[1.5rem] shadow-xl shadow-sky-900/10 border border-white/80 mb-5 flex items-center justify-center transform hover:scale-110 hover:-translate-y-1 transition-all duration-300 relative group-hover:shadow-sky-500/20">
+                        <DMLogo className="w-full h-full drop-shadow-sm" />
+                      </div>
+                      <div className="mb-8 text-center">
+                        <span className="px-3 py-1 bg-sky-100/80 border border-sky-200 text-sky-700 text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-3 inline-block shadow-sm">Selamat Datang</span>
+                        <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 tracking-tight drop-shadow-sm">Portal Akses</h2>
+                        <p className="text-slate-500 text-sm font-bold mt-1.5 leading-relaxed">Aplikasi Cerdas Laporan<br/>DM Terkendali</p>
+                      </div>
+
+                      <form onSubmit={handleLogin} className="w-full flex flex-col gap-6">
+                        <div className="relative group w-full">
+                          <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none z-10">
+                             <User className="h-6 w-6 text-sky-500 group-focus-within:text-blue-600 transition-colors duration-300 drop-shadow-sm" />
+                          </div>
+                          <input required type="text" placeholder="Masukkan Username" value={loginForm.username} onChange={(e) => setLoginForm({...loginForm, username: e.target.value})} className="block w-full h-[60px] pl-14 pr-6 bg-slate-100/90 border border-slate-200/60 rounded-[1.5rem] text-left text-lg font-black text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-400/30 transition-all duration-300 shadow-[inset_0px_6px_15px_rgba(0,0,0,0.1),inset_0px_2px_4px_rgba(0,0,0,0.06)] hover:bg-slate-100" />
+                        </div>
+                        <button type="submit" className="mt-2 relative group w-full h-[60px] text-white font-black rounded-[1.5rem] transition-all active:scale-[0.98] flex items-center justify-center gap-3 border-none outline-none">
+                          <div className="absolute -inset-1 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-[1.5rem] blur-md opacity-60 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+                          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 rounded-[1.5rem] overflow-hidden shadow-inner">
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[1200ms] ease-in-out"></div>
+                          </div>
+                          <LogIn className="w-6 h-6 relative z-10 drop-shadow-lg group-hover:scale-110 transition-transform duration-300"/> 
+                          <span className="uppercase tracking-[0.2em] text-[15px] relative z-10 drop-shadow-lg group-hover:tracking-[0.25em] transition-all duration-300">Akses Dashboard</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  <div className={`w-full flex flex-col items-center justify-center transition-all duration-700 ease-in-out ${isLoggingIn ? 'opacity-100 scale-100 h-64' : 'opacity-0 scale-90 h-0 absolute pointer-events-none'}`}>
+                    <div className="relative w-32 h-32 flex items-center justify-center mb-6">
+                      <div className="absolute inset-0 border-4 border-sky-100 rounded-full shadow-inner"></div>
+                      <div className="absolute inset-0 border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin-slow"></div>
+                      <div className="absolute inset-3 border-4 border-indigo-50 rounded-full"></div>
+                      <div className="absolute inset-3 border-4 border-b-indigo-500 border-t-transparent border-r-transparent border-l-transparent rounded-full animate-spin-reverse"></div>
+                      <div className="w-14 h-14 bg-white/90 rounded-xl p-2.5 shadow-lg flex items-center justify-center animate-pulse border border-white">
+                        <DMLogo className="w-full h-full" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800 tracking-tight animate-pulse drop-shadow-sm">Mengautentikasi API</h3>
+                    <p className="text-[11px] font-black text-sky-600 mt-2 uppercase tracking-[0.25em] animate-pulse delay-100">Menghubungi Server Google...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={`flex flex-col w-full min-h-screen transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${!isLoggedIn ? 'blur-lg scale-[0.98] opacity-40 pointer-events-none select-none' : 'blur-none scale-100 opacity-100'}`}>
+            <header className="glass-panel sticky top-0 z-50 border-b border-white/60 !rounded-none">
+              <div className="max-w-[1440px] mx-auto px-6 md:px-8 py-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-white/60 backdrop-blur-md p-2 rounded-2xl shadow-lg shadow-sky-500/10 hidden md:flex border border-white/80">
+                    <DMLogo className="w-8 h-8" />
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-black flex items-center gap-3">
+                      <DMLogo className="w-8 h-8 md:hidden drop-shadow-md" />
+                      <div className="drop-shadow-md">
+                        <span className="text-blue-950">SMART</span> <span className="text-orange-600 drop-shadow-[0_0_12px_rgba(234,88,12,0.6)]">DM</span>
+                      </div>
+                    </h1>
+                    <div className="w-max hidden xl:block">
+                      <p className="text-[10px] font-black text-sky-800 mt-1 tracking-widest uppercase animate-typewriter pr-1">
+                        SISTEM MONITORING DAN ANALISIS RAPOR TERKENDALI PADA PASIEN DM
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {(step !== 1 || showDashboard) && (
+                    <button onClick={() => { setStep(1); setShowDashboard(false); }} className="text-sky-700 bg-sky-100 hover:bg-sky-200 p-2.5 md:px-5 md:py-3 transition-all rounded-xl border border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.2)] flex items-center gap-2 text-sm font-bold hover:-translate-y-1">
+                      <Home className="w-5 h-5 md:w-5 md:h-5" /> <span className="hidden md:inline">Menu Awal</span>
+                    </button>
+                  )}
+                  <button onClick={loadDashboardDirectly} className="relative group overflow-hidden bg-gradient-to-r from-orange-400 to-orange-600 text-white p-2.5 md:px-6 md:py-3 transition-all rounded-xl border border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.7)] flex items-center gap-2 text-sm font-black hover:-translate-y-1 ring-2 ring-orange-500/30 ring-offset-2 ring-offset-[#f0f9ff]">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none"></div>
+                    <LayoutDashboard className="w-5 h-5 md:w-5 md:h-5 relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 drop-shadow-md" /> 
+                    <span className="hidden md:inline uppercase tracking-[0.15em] relative z-10 drop-shadow-md group-hover:tracking-[0.2em] transition-all duration-300">Dashboard</span>
+                  </button>
+                  {database.length > 0 && (
+                    <button onClick={() => triggerConfirm('Mulai Ulang Sesi Lokal', 'Hapus semua data matriks di layar Anda dan mulai kembali dari awal?', resetAllData, 'warning')} className="text-slate-500 hover:text-rose-500 p-2.5 md:px-4 md:py-3 transition-all rounded-xl hover:bg-white/50 backdrop-blur-sm border border-transparent hover:border-white/50 flex items-center gap-2 text-sm font-bold shadow-sm">
+                      <RefreshCw className="w-5 h-5 md:w-4 md:h-4" /> <span className="hidden md:inline">Reset UI</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </header>
+
+            <div className="max-w-[1440px] mx-auto px-6 md:px-8 py-8 w-full flex-grow flex flex-col relative z-10 overflow-hidden">
+              <main className="relative w-full flex-1 flex flex-col overflow-x-hidden">
+                
+                <div className={`w-full flex flex-col h-full ${getTransitionClass(1)}`}>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-3xl font-black text-slate-900 tracking-tight">Langkah 1: Matriks Data</h2>
+                      <p className="text-sky-800/80 text-sm mt-1 font-semibold">Ekstrak dan susun database pasien dari laporan bulanan.</p>
+                    </div>
+                    {database.length > 0 && (
+                      <label className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-sky-700 bg-white/70 hover:bg-white cursor-pointer transition-all border border-white shadow-sm hover:shadow-md active:scale-95">
+                        <FolderOpen className="w-4 h-4" /> <span>Upload Ulang Folder</span>
+                        <input type="file" webkitdirectory="true" directory="true" multiple className="hidden" onChange={handleMonitoringUpload} />
+                      </label>
+                    )}
+                  </div>
+
+                  {database.length === 0 ? (
+                    <label className="flex-grow flex flex-col items-center justify-center glass-panel floating-panel-delay-0 border-2 border-dashed border-sky-400/50 rounded-[2.5rem] p-10 hover:bg-white/60 hover:border-blue-400 cursor-pointer transition-all duration-300 group shadow-lg shadow-sky-900/5 min-h-[400px]">
+                      <div className="w-24 h-24 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/30 group-hover:scale-110 transition-transform duration-500">
+                        <FolderOpen className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-black text-slate-800 mb-2 group-hover:text-blue-700 transition-colors">Pilih Folder Laporan Pelayanan</h3>
+                      <p className="text-slate-500 font-medium text-center max-w-md mb-8">Klik di area ini untuk memilih folder yang berisi file Excel laporan bulanan pasien.</p>
+                      <div className="flex items-center gap-2 px-8 py-4 rounded-full text-sm font-black text-white bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 group-hover:-translate-y-1 transition-all duration-300 pointer-events-none">
+                        <UploadCloud className="w-5 h-5" /> <span>Upload Folder Sekarang</span>
+                      </div>
+                      <input type="file" webkitdirectory="true" directory="true" multiple className="hidden" onChange={handleMonitoringUpload} />
+                    </label>
+                  ) : (
+                    <div className="flex flex-col gap-6 flex-grow">
+                      <div className="glass-button rounded-[2rem] p-6 md:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden border border-white/20">
+                        <div className="absolute right-0 top-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                        <div className="relative z-10 flex items-center gap-5">
+                          <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/30 shrink-0 shadow-inner">
+                            <CheckCircle2 className="w-8 h-8 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-black tracking-tight">{database.length} Pasien Terdata</h3>
+                            <p className="text-sky-100 text-sm mt-1 font-medium">Data matriks dan kolom desa diekstrak ke memori.</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setStep(2)} disabled={isAutoTransitioning} className="relative z-10 w-full md:w-auto bg-white/90 backdrop-blur text-sky-700 hover:bg-white font-black py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-80 disabled:cursor-wait transition-all active:scale-95 flex items-center justify-center gap-3 border border-white/50">
+                          {isAutoTransitioning ? <><Loader2 className="w-5 h-5 animate-spin" /> Mengalihkan...</> : <>Lanjut: Sinkronisasi Tanggal <ArrowRight className="w-5 h-5" /></>}
+                        </button>
+                      </div>
+
+                      <div className="glass-panel floating-panel-delay-1 border border-white/60 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-sky-900/10 relative flex-grow flex flex-col">
+                        <div className="px-6 md:px-10 py-5 border-b border-white/40 bg-white/40 flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-white/50 p-2 rounded-xl border border-white/50 shadow-sm"><Filter className="w-4 h-4 text-sky-600" /></div>
+                            <span className="font-black text-slate-800">Preview Matriks Tersimpan</span>
+                          </div>
+                        </div>
+                        <div className="overflow-x-auto max-h-[500px]">
+                          <table className="w-full border-collapse min-w-[800px]">
+                            <thead className="sticky top-0 bg-white/80 backdrop-blur-md shadow-sm z-10">
+                              <tr>
+                                <th className="px-10 py-5 text-[11px] font-black text-slate-500 uppercase text-left tracking-[0.15em] border-b border-white/40">Profil Pasien</th>
+                                {['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'].map(m => (
+                                  <th key={m} className="px-2 py-5 text-[10px] font-black text-slate-500 text-center border-b border-white/40">{m}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/40">
+                              {database.slice(0, 10).map((patient) => (
+                                <tr key={patient.id} className="hover:bg-white/40 transition-colors">
+                                  <td className="px-10 py-4">
+                                    <div className="flex flex-col">
+                                      <span className="font-bold text-slate-900 text-sm">{patient.name}</span>
+                                      <span className="text-[10px] text-sky-500 font-bold mt-0.5">ID: {patient.id} | Desa: {patient.desa}</span>
+                                    </div>
+                                  </td>
+                                  {patient.months.map((status, idx) => (
+                                    <td key={idx} className="px-1 py-4 text-center">
+                                      {status && status !== '-' ? (
+                                        <span className="inline-block px-2 py-1 rounded-lg bg-sky-100/80 border border-sky-200/50 text-sky-800 text-[10px] font-bold backdrop-blur-sm shadow-sm">{status === "V" ? "OK" : status}</span>
+                                      ) : (
+                                        <span className="text-slate-400/50 font-medium">-</span>
+                                      )}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className={`w-full max-w-5xl mx-auto flex flex-col justify-center py-4 ${getTransitionClass(2)}`}>
+                  <div className="glass-panel floating-panel-delay-0 rounded-[2.5rem] shadow-2xl shadow-sky-900/10 border border-white/60 overflow-hidden relative flex flex-col md:flex-row">
+                    <div className="w-full md:w-2/5 bg-gradient-to-br from-sky-50/90 to-blue-100/90 p-8 md:p-10 border-b md:border-b-0 md:border-r border-white/50 flex flex-col relative backdrop-blur-md">
+                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-sky-400 to-blue-500"></div>
+                      <div className="flex flex-col h-full">
+                        <button onClick={() => setStep(1)} className="flex items-center gap-2 text-slate-600 hover:text-sky-700 font-bold text-sm mb-10 transition-colors bg-white/60 hover:bg-white px-4 py-2 rounded-xl border border-white/80 w-fit shadow-sm active:scale-95">
+                          <ArrowLeft className="w-4 h-4" /> Kembali
+                        </button>
+                        <div className="mt-auto md:mt-0 md:mb-auto">
+                          <div className="w-16 h-16 bg-white/80 backdrop-blur-md rounded-[1.25rem] border border-white shadow-sm flex items-center justify-center mb-6">
+                            <RefreshCw className="w-8 h-8 text-blue-600" />
+                          </div>
+                          <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Sinkronisasi<br/>Tanggal</h2>
+                          <p className="text-slate-600 text-sm font-medium leading-relaxed">
+                            Unggah rekap <strong>DM Terkontrol</strong>. Sistem akan mencocokkan profil dan memadukan Tanggal Diagnosa.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-full md:w-3/5 p-8 md:p-10 flex flex-col justify-center bg-white/40 backdrop-blur-md">
+                      <label className={`relative flex flex-col items-center justify-center w-full rounded-[2rem] p-10 cursor-pointer transition-all duration-300 border-2 border-dashed min-h-[300px] ${dragActiveDM ? 'border-blue-500 bg-blue-50/50 scale-[1.02]' : 'border-sky-300 hover:border-blue-400 bg-white/30'}`}
+                        onDragOver={(e) => { e.preventDefault(); setDragActiveDM(true); }} onDragLeave={(e) => { e.preventDefault(); setDragActiveDM(false); }}
+                        onDrop={(e) => { e.preventDefault(); setDragActiveDM(false); if(e.dataTransfer.files[0]) { setFileDM(e.dataTransfer.files[0]); handleSyncProcess(e.dataTransfer.files[0]); } }}
+                      >
+                        <input type="file" className="hidden" accept=".xlsx, .xls" onChange={(e) => { if(e.target.files[0]) { setFileDM(e.target.files[0]); handleSyncProcess(e.target.files[0]); } e.target.value = null; }} />
+                        {!fileDM ? (
+                          <div className="text-center transition-all flex flex-col items-center">
+                            <div className="h-20 w-20 bg-white rounded-full shadow-sm flex items-center justify-center mb-5 border border-sky-100 text-sky-500">
+                              <FileSpreadsheet className="h-10 w-10" />
+                            </div>
+                            <p className="text-xl font-black text-slate-800">File DM Terkontrol</p>
+                            <div className="mt-6 flex items-center gap-2 px-8 py-3.5 rounded-full text-sm font-black text-white bg-gradient-to-r from-sky-500 to-blue-600 shadow-lg pointer-events-none">
+                              <FileUp className="w-5 h-5" /> <span>Upload Excel</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-center transition-all">
+                            <div className="bg-emerald-500 p-5 rounded-full mb-5 text-white shadow-lg relative">
+                              <Check className="w-10 h-10 relative z-10" />
+                            </div>
+                            <span className="text-lg font-black text-slate-800">{fileDM.name}</span>
+                          </div>
+                        )}
+                      </label>
+                      <button onClick={handleSyncProcess} disabled={!fileDM || isProcessing || isAutoTransitioningFinal} className="mt-6 w-full glass-button text-white font-black py-4 px-6 rounded-[1.5rem] disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-3 transition-all text-sm uppercase tracking-widest hover:scale-[1.02] shadow-lg">
+                        {isProcessing ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Sinkronisasi...</span></> : isAutoTransitioningFinal ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Mengalihkan...</span></> : <><RefreshCw className="w-5 h-5" /><span>Mulai</span></>}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`w-full flex flex-col ${getTransitionClass(3)}`}>
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8">
+                    {[
+                      { label: 'Total Database', val: (showDashboard && dashboardData && dashboardData.totalPatients !== undefined) ? dashboardData.totalPatients : database.length, icon: Users, color: 'sky', grad: 'from-sky-100 to-blue-100' },
+                      { label: 'Kunjungan Bulan Ini', val: (showDashboard && dashboardData && dashboardData.currentMonthVisits !== undefined) ? dashboardData.currentMonthVisits : database.filter(p => p.months[new Date().getMonth()] !== '-').length, icon: CheckCircle2, color: 'emerald', grad: 'from-emerald-100 to-teal-100' },
+                      { label: 'Status Penggabungan', val: 'Berhasil', icon: Activity, color: 'blue', grad: 'from-blue-100 to-indigo-100' },
+                    ].map((item, i) => (
+                      <div key={i} className={`glass-panel floating-panel-delay-${i} p-7 rounded-[2rem] border border-white/60 flex items-center justify-between shadow-xl shadow-sky-900/5 hover:-translate-y-1 transition-transform duration-300`}>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.label}</p>
+                          <h3 className="text-3xl font-black text-slate-900 mt-1">{item.val}</h3>
+                        </div>
+                        <div className={`w-14 h-14 rounded-[1.5rem] bg-gradient-to-br ${item.grad} flex items-center justify-center text-${item.color}-600 border border-white/80 shadow-inner`}><item.icon className="w-7 h-7" /></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {showDashboard && dashboardData && (
+                    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
+                        <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                          <div className="p-2 bg-blue-500 text-white rounded-xl shadow-md"><BarChart3 className="w-6 h-6" /></div> Dashboard DM terkendali
+                        </h2>
+                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                          <button onClick={exportFinalExcel} className="flex-1 md:flex-none bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/30"><Download className="w-4 h-4" /> Export per Desa</button>
+                          <button onClick={handleCopyReport} className="flex-1 md:flex-none glass-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-500/30"><Copy className="w-4 h-4" /> Salin Laporan</button>
+                          <button onClick={handleOpenPasteLink} className="flex-1 md:flex-none bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white border border-orange-300 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-orange-500/30"><ExternalLink className="w-4 h-4" /> Kemenkes</button>
+                          <button onClick={handleResetDatabase} className="flex-1 md:flex-none bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm"><Trash2 className="w-4 h-4" /> Reset</button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <ChartCard title="Pasien Dilayani Sesuai Standar" labels={dashboardData.labels.slice(0, 12)} data={dashboardData.values.slice(0, 12)} color="#0ea5e9" />
+                        <ChartCard title="Total Pasien Terkendali" labels={dashboardData.labels.slice(12, 17)} data={dashboardData.values.slice(12, 17)} color="#10b981" />
+                        <ChartCard title="Terkendali (Diberikan Obat)" labels={dashboardData.labels.slice(17, 22)} data={dashboardData.values.slice(17, 22)} color="#3b82f6" />
+                        <ChartCard title="Terkendali (Tanpa Obat)" labels={dashboardData.labels.slice(22, 27)} data={dashboardData.values.slice(22, 27)} color="#64748b" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </main>
+            </div>
+          </div>
+
+          {confirmModal.show && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-md" onClick={closeConfirm}></div>
+              <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white w-full max-w-md relative z-10 p-10">
+                <div className="flex items-center gap-5 mb-8">
+                  <div className={`p-4 rounded-2xl shadow-inner border ${confirmModal.type === 'danger' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                    {confirmModal.type === 'danger' ? <AlertCircle className="w-7 h-7" /> : <AlertTriangle className="w-7 h-7" />}
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight leading-snug">{confirmModal.title}</h3>
+                </div>
+                <p className="text-slate-600 text-sm font-medium mb-10">{confirmModal.message}</p>
+                <div className="flex gap-4">
+                  <button onClick={closeConfirm} className="flex-1 px-6 py-3.5 rounded-2xl text-sm font-black text-slate-600 bg-slate-100/80 hover:bg-slate-200">Batal</button>
+                  <button onClick={() => { if(confirmModal.onConfirm) confirmModal.onConfirm(); closeConfirm(); }} className={`flex-1 px-6 py-3.5 rounded-2xl text-sm font-black text-white shadow-xl ${confirmModal.type === 'danger' ? 'bg-gradient-to-r from-rose-500 to-rose-600' : 'glass-button'}`}>Ya, Lanjutkan</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {toast.show && (
+            <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[110] animate-in slide-in-from-top-10 duration-300">
+              <div className={`flex items-center gap-4 md:gap-5 px-6 md:px-8 py-4 md:py-5 rounded-3xl shadow-2xl border backdrop-blur-xl min-w-[320px] md:min-w-[360px] ${toast.type === 'error' ? 'bg-white/90 border-rose-200' : toast.type === 'warning' ? 'bg-white/90 border-amber-200' : 'bg-white/90 border-sky-200'}`}>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${toast.type === 'error' ? 'bg-gradient-to-br from-rose-100 to-red-100 text-rose-600' : 'bg-gradient-to-br from-sky-100 to-blue-100 text-sky-600'}`}>
+                  {toast.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+                </div>
+                <div>
+                  <p className="text-sm md:text-base font-black text-slate-900 tracking-tight">{toast.msg}</p>
+                  <p className="text-[11px] md:text-xs text-slate-500 font-bold mt-0.5">{toast.sub}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {(isProcessing || isSavingToSheet) && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-md">
+              <div className="relative flex flex-col items-center justify-center">
+                <div className="glass-loader-container p-10 md:p-14 rounded-[3rem] flex flex-col items-center gap-6 relative z-10">
+                  <div className="relative w-28 h-28 flex items-center justify-center perspective-[1000px]">
+                    <div className="absolute inset-0 border-[4px] border-t-sky-400 border-r-blue-500 border-b-transparent border-l-transparent rounded-full animate-spin-slow drop-shadow-[0_0_15px_rgba(14,165,233,0.8)]" style={{ transformStyle: 'preserve-3d' }}></div>
+                    <div className="absolute inset-2 border-[4px] border-b-indigo-400 border-l-sky-300 border-t-transparent border-r-transparent rounded-full animate-spin-reverse drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]" style={{ transformStyle: 'preserve-3d' }}></div>
+                    <div className="absolute inset-5 bg-gradient-to-tr from-white to-sky-50 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.8)] border border-white/80 animate-pulse" style={{ animationDuration: '1.5s' }}>
+                      <DMLogo className="w-10 h-10 drop-shadow-md" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col text-center mt-2 relative z-10">
+                    <span className="text-2xl md:text-3xl font-black tracking-tight text-white mb-2">{isSavingToSheet ? 'Menyiapkan Dashboard' : 'Memproses Data'}</span>
+                    <span className="text-[11px] font-black text-sky-200 mt-3 uppercase tracking-[0.3em] drop-shadow-md">Sistem Sedang Bekerja</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
