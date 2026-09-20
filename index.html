@@ -12,7 +12,7 @@
   
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script>
-    // Konfigurasi Babel untuk memastikan async/await berjalan normal di browser
+    // Konfigurasi Babel
     Babel.registerPreset('my-custom-preset', {
       presets: [
         [Babel.availablePresets['env'], { targets: "> 0.25%, not dead" }],
@@ -22,143 +22,62 @@
   </script>
   
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@0.288.0/dist/umd/lucide.min.js"></script>
 
   <style>
-    /* Menyembunyikan Scrollbar Bawaan (Alat Bantu Naik/Turun) */
-    ::-webkit-scrollbar {
-      display: none;
-      width: 0;
-      height: 0;
-    }
-    * {
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
-    }
+    /* Menyembunyikan Scrollbar */
+    ::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    * { scrollbar-width: none; -ms-overflow-style: none; }
 
-    /* Custom Animations for the Floating Background */
+    /* Custom Animations */
     @keyframes float {
       0% { transform: translate(0px, 0px) scale(1); }
       33% { transform: translate(30px, -50px) scale(1.1); }
       66% { transform: translate(-20px, 20px) scale(0.9); }
       100% { transform: translate(0px, 0px) scale(1); }
     }
-    
-    @keyframes menuFloat {
-      0% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-5px) rotate(0.5deg); }
-      100% { transform: translateY(0px) rotate(0deg); }
-    }
-    
-    @keyframes panelFloat {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-6px); }
-      100% { transform: translateY(0px); }
-    }
-
-    /* Animasi Efek Mengetik */
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-    @keyframes blink-caret {
-      from, to { border-color: transparent; }
-      50% { border-color: #075985; }
-    }
-
-    /* --- ANIMASI LOGIN BARU --- */
-    @keyframes spin-slow {
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes spin-reverse {
-      100% { transform: rotate(-360deg); }
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
-    @keyframes tilt {
-      0%, 50%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(0.5deg) scale(1.01); }
-      75% { transform: rotate(-0.5deg) scale(1.01); }
-    }
+    @keyframes menuFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(0.5deg); } }
+    @keyframes panelFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+    @keyframes typing { from { width: 0; } to { width: 100%; } }
+    @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #075985; } }
+    @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+    @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+    @keyframes tilt { 0%, 50%, 100% { transform: rotate(0deg); } 25% { transform: rotate(0.5deg) scale(1.01); } 75% { transform: rotate(-0.5deg) scale(1.01); } }
 
     .animate-spin-slow { animation: spin-slow 3s linear infinite; }
     .animate-spin-reverse { animation: spin-reverse 2.5s linear infinite; }
     .animate-tilt { animation: tilt 7s infinite linear; }
     
-    .btn-shimmer {
-      background: linear-gradient(110deg, #0ea5e9 0%, #2563eb 40%, #60a5fa 50%, #2563eb 60%, #0ea5e9 100%);
-      background-size: 200% auto;
-      transition: all 0.5s ease;
-    }
-    .btn-shimmer:hover {
-      background-position: right center;
-    }
-
     .animate-typewriter {
-      display: inline-block;
-      overflow: hidden;
-      white-space: nowrap;
-      border-right: 2px solid #075985;
+      display: inline-block; overflow: hidden; white-space: nowrap; border-right: 2px solid #075985;
       animation: typing 3s steps(50, end) forwards, blink-caret 0.75s step-end infinite;
     }
 
-    .floating-menu { animation: menuFloat 6s ease-in-out infinite; }
     .floating-panel-delay-0 { animation: panelFloat 7s ease-in-out infinite; }
     .floating-panel-delay-1 { animation: panelFloat 6.5s ease-in-out infinite 1s; }
-    .floating-panel-delay-2 { animation: panelFloat 8s ease-in-out infinite 2s; }
 
-    .blob {
-      position: fixed;
-      filter: blur(90px);
-      z-index: 0;
-      opacity: 0.7;
-      animation: float 20s infinite ease-in-out;
-      border-radius: 50%;
-    }
-    /* Warna original: Biru Muda Profesional */
+    .blob { position: fixed; filter: blur(90px); z-index: 0; opacity: 0.7; animation: float 20s infinite ease-in-out; border-radius: 50%; }
     .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #bae6fd; animation-delay: 0s; } 
     .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #bfdbfe; animation-delay: -5s; } 
     .blob-3 { top: 30%; left: 30%; width: 40vw; height: 40vw; background: #e0f2fe; animation-delay: -10s; } 
     
     .glass-panel {
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.1);
+      background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.1);
     }
     
-    /* Gradient Utama: Biru Langit ke Biru Professional */
     .glass-button {
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4);
       box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4);
     }
     .glass-button:hover:not(:disabled) {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
-      box-shadow: 0 15px 30px -5px rgba(14, 165, 233, 0.5);
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%); box-shadow: 0 15px 30px -5px rgba(14, 165, 233, 0.5);
     }
 
-    .glass-menu {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    /* --- TAMBAHAN STYLE UNTUK ANIMASI PROCESSING BARU --- */
     .glass-loader-container {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(35px);
-      -webkit-backdrop-filter: blur(35px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
+      border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.6);
     }
   </style>
 </head>
@@ -167,9 +86,8 @@
 
   <script type="text/babel" data-presets="my-custom-preset">
     // =========================================================================
-    // KONFIGURASI API BACKEND (GITHUB PAGES CONFIG)
+    // KONFIGURASI API BACKEND 
     // =========================================================================
-    // TEMPEL SCRIPT URL ANDA DI SINI!! (Harus berakhiran dengan /exec)
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbqlkHSkdV_haQfVH4AbKCMTlx2RQAfiXRAsA8lsNkZdfkHj6PdorWsNiP4XVgwDiD/exec';
     
     const { useState, useEffect, useRef } = React;
@@ -178,10 +96,10 @@
       FileUp: 'file-up', Download: 'download', Search: 'search', Trash2: 'trash-2',
       FileSpreadsheet: 'file-spreadsheet', CheckCircle2: 'check-circle-2', AlertCircle: 'alert-circle',
       Loader2: 'loader-2', Filter: 'filter', Users: 'users', Activity: 'activity', FolderOpen: 'folder-open',
-      AlertTriangle: 'alert-triangle', ChevronRight: 'chevron-right', RefreshCw: 'refresh-cw',
+      AlertTriangle: 'alert-triangle', ChevronRight: 'chevron-right', ChevronLeft: 'chevron-left', RefreshCw: 'refresh-cw',
       UploadCloud: 'upload-cloud', Database: 'database', Check: 'check', ArrowRight: 'arrow-right',
-      ArrowLeft: 'arrow-left', CloudUpload: 'cloud-upload', BarChart3: 'bar-chart-3', LayoutDashboard: 'layout-dashboard',
-      Copy: 'copy', Home: 'home', User: 'user', Lock: 'lock', LogIn: 'log-in', ExternalLink: 'external-link'
+      ArrowLeft: 'arrow-left', CloudUpload: 'cloud-upload', Copy: 'copy', Home: 'home', User: 'user', 
+      Lock: 'lock', LogIn: 'log-in', ExternalLink: 'external-link'
     };
 
     const createLucideIcon = (name) => {
@@ -198,35 +116,20 @@
       };
     };
 
-    const FileUp = createLucideIcon('FileUp');
-    const Download = createLucideIcon('Download');
-    const Search = createLucideIcon('Search');
-    const Trash2 = createLucideIcon('Trash2');
-    const FileSpreadsheet = createLucideIcon('FileSpreadsheet');
-    const CheckCircle2 = createLucideIcon('CheckCircle2');
-    const AlertCircle = createLucideIcon('AlertCircle');
-    const Loader2 = createLucideIcon('Loader2');
-    const Filter = createLucideIcon('Filter');
-    const Users = createLucideIcon('Users');
-    const Activity = createLucideIcon('Activity');
-    const FolderOpen = createLucideIcon('FolderOpen');
-    const AlertTriangle = createLucideIcon('AlertTriangle');
-    const ChevronRight = createLucideIcon('ChevronRight');
-    const RefreshCw = createLucideIcon('RefreshCw');
-    const UploadCloud = createLucideIcon('UploadCloud');
-    const Database = createLucideIcon('Database');
-    const Check = createLucideIcon('Check');
-    const ArrowRight = createLucideIcon('ArrowRight');
-    const ArrowLeft = createLucideIcon('ArrowLeft');
-    const CloudUpload = createLucideIcon('CloudUpload');
-    const BarChart3 = createLucideIcon('BarChart3');
-    const LayoutDashboard = createLucideIcon('LayoutDashboard');
-    const Copy = createLucideIcon('Copy');
-    const Home = createLucideIcon('Home');
-    const User = createLucideIcon('User');
-    const Lock = createLucideIcon('Lock');
-    const LogIn = createLucideIcon('LogIn');
-    const ExternalLink = createLucideIcon('ExternalLink');
+    const FileUp = createLucideIcon('FileUp'); const Download = createLucideIcon('Download');
+    const Search = createLucideIcon('Search'); const Trash2 = createLucideIcon('Trash2');
+    const FileSpreadsheet = createLucideIcon('FileSpreadsheet'); const CheckCircle2 = createLucideIcon('CheckCircle2');
+    const AlertCircle = createLucideIcon('AlertCircle'); const Loader2 = createLucideIcon('Loader2');
+    const Filter = createLucideIcon('Filter'); const Users = createLucideIcon('Users');
+    const Activity = createLucideIcon('Activity'); const FolderOpen = createLucideIcon('FolderOpen');
+    const AlertTriangle = createLucideIcon('AlertTriangle'); const ChevronRight = createLucideIcon('ChevronRight');
+    const ChevronLeft = createLucideIcon('ChevronLeft'); const RefreshCw = createLucideIcon('RefreshCw'); 
+    const UploadCloud = createLucideIcon('UploadCloud'); const Database = createLucideIcon('Database'); 
+    const Check = createLucideIcon('Check'); const ArrowRight = createLucideIcon('ArrowRight'); 
+    const ArrowLeft = createLucideIcon('ArrowLeft'); const CloudUpload = createLucideIcon('CloudUpload'); 
+    const Copy = createLucideIcon('Copy'); const Home = createLucideIcon('Home'); 
+    const User = createLucideIcon('User'); const Lock = createLucideIcon('Lock'); 
+    const LogIn = createLucideIcon('LogIn'); const ExternalLink = createLucideIcon('ExternalLink');
 
     const DMLogo = ({ className }) => (
       <svg className={className} viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -240,80 +143,32 @@
       </svg>
     );
 
-    const ChartCard = ({ title, labels, data, color }) => {
-      const canvasRef = useRef(null);
-      const chartInstance = useRef(null);
-
-      useEffect(() => {
-        if (!canvasRef.current) return;
-        if (chartInstance.current) chartInstance.current.destroy();
-
-        const ctx = canvasRef.current.getContext('2d');
-        chartInstance.current = new window.Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: title,
-              data: data,
-              backgroundColor: color + '90',
-              borderColor: color,
-              borderWidth: 2,
-              borderRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              title: { 
-                display: true, 
-                text: title, 
-                font: { size: 14, family: 'system-ui', weight: 'bold' },
-                color: '#1e293b',
-                padding: { bottom: 20 }
-              }
-            },
-            scales: {
-              y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-              x: { grid: { display: false } }
-            }
-          }
-        });
-        return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-      }, [labels, data, title, color]);
-
-      return (
-        <div className="glass-panel p-5 md:p-6 rounded-[2rem] border border-white/60 shadow-xl relative h-[300px] flex items-center justify-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-white/40">
-          <canvas ref={canvasRef}></canvas>
-        </div>
-      );
-    };
-
     const App = () => {
+      // Auth State
       const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [loggedInUser, setLoggedInUser] = useState('');
       const [loginForm, setLoginForm] = useState({ username: '' });
       const [isLoggingIn, setIsLoggingIn] = useState(false);
       const [loginAnimatingOut, setLoginAnimatingOut] = useState(false);
 
+      // Global State
       const [step, setStep] = useState(1); 
       const [toast, setToast] = useState({ show: false, msg: '', sub: '', type: 'success' });
       const [isProcessing, setIsProcessing] = useState(false);
       const [isSavingToSheet, setIsSavingToSheet] = useState(false);
       
-      const [showDashboard, setShowDashboard] = useState(false);
-      const [dashboardData, setDashboardData] = useState(null);
       const [userTargetUrl, setUserTargetUrl] = useState('');
       const [userKemenkesUrl, setUserKemenkesUrl] = useState('');
 
+      // Transition & Modal States
       const [isAutoTransitioning, setIsAutoTransitioning] = useState(false);
       const [isAutoTransitioningFinal, setIsAutoTransitioningFinal] = useState(false);
-
       const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, type: 'warning' });
 
+      // Data States
       const [database, setDatabase] = useState([]);
-      const [searchQuery, setSearchQuery] = useState('');
+      const [uploadResult, setUploadResult] = useState(null);
+      const [currentPage, setCurrentPage] = useState(1); // State Paginasi
       
       const [fileDM, setFileDM] = useState(null);
       const [dragActiveDM, setDragActiveDM] = useState(false);
@@ -331,7 +186,7 @@
       const closeConfirm = () => setConfirmModal({ ...confirmModal, show: false });
 
       const resetAllData = () => {
-        setDatabase([]); setFileDM(null); setSyncStatusMsg(null); setStep(1); setSearchQuery(''); setShowDashboard(false); setDashboardData(null);
+        setDatabase([]); setFileDM(null); setSyncStatusMsg(null); setStep(1); setUploadResult(null); setCurrentPage(1);
       };
 
       const handleLogin = async (e) => {
@@ -349,6 +204,7 @@
           if (result.success && result.data && result.data.valid) {
             setUserTargetUrl(result.data.targetUrl);
             setUserKemenkesUrl(result.data.kemenkesUrl);
+            setLoggedInUser(loginForm.username); // Simpan nama akun
             triggerLoginSuccess();
           } else {
              if (result.error) showToast('Error Server', result.error, 'error');
@@ -367,24 +223,6 @@
           setIsLoggedIn(true); setIsLoggingIn(false);
           showToast('Berhasil Masuk', 'Selamat datang di SMART DM', 'success');
         }, 1000);
-      };
-
-      const loadDashboardDirectly = async () => {
-        setIsProcessing(true);
-        try {
-          const response = await fetch(`${SCRIPT_URL}?action=getRekap&targetUrl=${encodeURIComponent(userTargetUrl)}`);
-          const result = await response.json();
-          setIsProcessing(false);
-          if (result.success && result.data && result.data.labels) {
-            setDashboardData(result.data); setShowDashboard(true); setStep(3);
-            showToast("Dashboard Terbuka", "Data berhasil diambil dari Google Sheets", "success");
-          } else {
-             if (result.error) showToast("Error Akses Link", result.error, "error");
-             else showToast("Info Dashboard", "Data grafik rekap belum tersedia atau kosong.", "warning");
-          }
-        } catch (error) {
-          setIsProcessing(false); showToast("Error Load Grafik", error.message, "error");
-        }
       };
 
       const handleResetDatabase = () => {
@@ -422,7 +260,7 @@
             catch (err) { showToast("Gagal Menyalin", "Browser Anda memblokir fungsi copy.", "error"); }
             document.body.removeChild(textArea);
           } else {
-             showToast("Gagal Menyalin", result.error || "Data rekap gagal diambil.", "error");
+             showToast("Gagal Menyalin", result.error || "Data rekap gagal diambil atau API server ditutup.", "error");
           }
         } catch (error) {
           setIsProcessing(false); showToast("Error Jaringan", error.message, "error");
@@ -432,9 +270,18 @@
       const handleOpenPasteLink = () => {
         if (userKemenkesUrl && String(userKemenkesUrl).trim().startsWith('http')) {
           window.open(String(userKemenkesUrl).trim(), '_blank');
-          showToast("Membuka Link", "Membuka web Kemenkes...", "success");
+          showToast("Membuka Link", "Membuka Kertas Kerja B...", "success");
         } else {
           showToast("Link Tidak Valid", "Pastikan Kolom C berisi link valid.", "error");
+        }
+      };
+      
+      const handleOpenKertasKerjaA = () => {
+        if (userTargetUrl && String(userTargetUrl).trim().startsWith('http')) {
+          window.open(String(userTargetUrl).trim(), '_blank');
+          showToast("Membuka Spreadsheet", "Membuka Kertas Kerja A...", "success");
+        } else {
+          showToast("Link Tidak Valid", "Pastikan Kolom B berisi link Spreadsheet valid.", "error");
         }
       };
 
@@ -593,7 +440,7 @@
           setSyncStatusMsg({ type: 'success', text: `Berhasil! ${matchCount} cocok. ${autoFillCount} baru.` });
           setIsAutoTransitioningFinal(true); showToast('Selesai', 'Menyimpan ke server...', 'success');
           
-          setTimeout(() => { setStep(3); setIsAutoTransitioningFinal(false); saveToGoogleSheets(updatedDatabase); }, 1800);
+          setTimeout(() => { setIsAutoTransitioningFinal(false); saveToGoogleSheets(updatedDatabase); }, 1800);
         } catch (err) {
           setSyncStatusMsg({ type: 'error', text: 'GAGAL membaca file DM.' }); showToast('Gagal', 'Periksa file Excel Anda.', 'error');
         } finally { setIsProcessing(false); }
@@ -633,6 +480,10 @@
         if (dataToSave.length === 0) return;
         setIsSavingToSheet(true);
         const todayStr = getTodayString();
+        const currentYear = new Date().getFullYear();
+        
+        const dataA = dataToSave.map(() => [loggedInUser]); // Kolom A: Nama Akun
+        const dataB = dataToSave.map(() => [currentYear]);  // Kolom B: Tahun Saat Ini
         const dataC = dataToSave.map(p => [p.name]); 
         const dataD = dataToSave.map(p => [p.diagnosaDate === todayStr ? "01/01/2025" : p.diagnosaDate]); 
         const dataGR = dataToSave.map(p => p.months.map(m => m === '-' ? '' : m)); 
@@ -640,13 +491,23 @@
         try {
           const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ action: 'saveData', targetUrl: userTargetUrl, dataC: dataC, dataD: dataD, dataGR: dataGR })
+            body: JSON.stringify({ action: 'saveData', targetUrl: userTargetUrl, dataA: dataA, dataB: dataB, dataC: dataC, dataD: dataD, dataGR: dataGR })
           });
           const result = await response.json();
+          setIsSavingToSheet(false);
+          
           if(result.success && result.data.status === "SUCCESS") {
-            showToast("Berhasil Disimpan", "Menyiapkan Dashboard Grafik...", "success"); loadDashboardDirectly();
-          } else { setIsSavingToSheet(false); showToast("Gagal Disimpan", result.error || result.data.status, "error"); }
-        } catch (error) { setIsSavingToSheet(false); showToast("Error Koneksi", error.message, "error"); }
+            showToast("Berhasil Disimpan", "Data berhasil diunggah ke Spreadsheet.", "success");
+            setUploadResult(dataToSave);
+            setCurrentPage(1); // Reset paginasi saat upload sukses
+            setStep(3);
+          } else { 
+            showToast("Gagal Disimpan", result.error || result.data.status, "error"); 
+          }
+        } catch (error) { 
+          setIsSavingToSheet(false); 
+          showToast("Error Koneksi", error.message, "error"); 
+        }
       };
 
       const getTransitionClass = (targetStep) => {
@@ -654,6 +515,12 @@
         if (step > targetStep) return 'opacity-0 -translate-x-20 scale-[0.98] blur-md absolute top-0 pointer-events-none z-0 transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]';
         return 'opacity-0 translate-x-20 scale-[0.98] blur-md absolute top-0 pointer-events-none z-0 transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]';
       };
+
+      // Kalkulasi Paginasi untuk Langkah 3
+      const itemsPerPage = 20;
+      const totalPages = uploadResult ? Math.ceil(uploadResult.length / itemsPerPage) : 0;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const currentPaginatedData = uploadResult ? uploadResult.slice(startIndex, startIndex + itemsPerPage) : [];
 
       return (
         <div className="min-h-screen relative overflow-hidden bg-[#f0f9ff] text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 flex flex-col">
@@ -698,7 +565,7 @@
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[1200ms] ease-in-out"></div>
                           </div>
                           <LogIn className="w-6 h-6 relative z-10 drop-shadow-lg group-hover:scale-110 transition-transform duration-300"/> 
-                          <span className="uppercase tracking-[0.2em] text-[15px] relative z-10 drop-shadow-lg group-hover:tracking-[0.25em] transition-all duration-300">Akses Dashboard</span>
+                          <span className="uppercase tracking-[0.2em] text-[15px] relative z-10 drop-shadow-lg group-hover:tracking-[0.25em] transition-all duration-300">Masuk Aplikasi</span>
                         </button>
                       </form>
                     </div>
@@ -744,16 +611,11 @@
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {(step !== 1 || showDashboard) && (
-                    <button onClick={() => { setStep(1); setShowDashboard(false); }} className="text-sky-700 bg-sky-100 hover:bg-sky-200 p-2.5 md:px-5 md:py-3 transition-all rounded-xl border border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.2)] flex items-center gap-2 text-sm font-bold hover:-translate-y-1">
+                  {step !== 1 && (
+                    <button onClick={() => setStep(1)} className="text-sky-700 bg-sky-100 hover:bg-sky-200 p-2.5 md:px-5 md:py-3 transition-all rounded-xl border border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.2)] flex items-center gap-2 text-sm font-bold hover:-translate-y-1">
                       <Home className="w-5 h-5 md:w-5 md:h-5" /> <span className="hidden md:inline">Menu Awal</span>
                     </button>
                   )}
-                  <button onClick={loadDashboardDirectly} className="relative group overflow-hidden bg-gradient-to-r from-orange-400 to-orange-600 text-white p-2.5 md:px-6 md:py-3 transition-all rounded-xl border border-orange-300 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.7)] flex items-center gap-2 text-sm font-black hover:-translate-y-1 ring-2 ring-orange-500/30 ring-offset-2 ring-offset-[#f0f9ff]">
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none"></div>
-                    <LayoutDashboard className="w-5 h-5 md:w-5 md:h-5 relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 drop-shadow-md" /> 
-                    <span className="hidden md:inline uppercase tracking-[0.15em] relative z-10 drop-shadow-md group-hover:tracking-[0.2em] transition-all duration-300">Dashboard</span>
-                  </button>
                   {database.length > 0 && (
                     <button onClick={() => triggerConfirm('Mulai Ulang Sesi Lokal', 'Hapus semua data matriks di layar Anda dan mulai kembali dari awal?', resetAllData, 'warning')} className="text-slate-500 hover:text-rose-500 p-2.5 md:px-4 md:py-3 transition-all rounded-xl hover:bg-white/50 backdrop-blur-sm border border-transparent hover:border-white/50 flex items-center gap-2 text-sm font-bold shadow-sm">
                       <RefreshCw className="w-5 h-5 md:w-4 md:h-4" /> <span className="hidden md:inline">Reset UI</span>
@@ -850,6 +712,11 @@
                             </tbody>
                           </table>
                         </div>
+                        {database.length > 10 && (
+                          <div className="p-4 text-center text-xs font-bold text-slate-500 bg-white/30 backdrop-blur-md border-t border-white/40">
+                            Menampilkan 10 dari {database.length} data. Lanjut ke tahap berikutnya untuk hasil lengkap.
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -869,7 +736,7 @@
                           </div>
                           <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Sinkronisasi<br/>Tanggal</h2>
                           <p className="text-slate-600 text-sm font-medium leading-relaxed">
-                            Unggah rekap <strong>DM Terkontrol</strong>. Sistem akan mencocokkan profil dan memadukan Tanggal Diagnosa.
+                            Unggah rekap <strong>DM Terkontrol</strong>. Sistem akan mencocokkan profil dan memadukan Tanggal Diagnosa ke Matriks.
                           </p>
                         </div>
                       </div>
@@ -906,43 +773,118 @@
                   </div>
                 </div>
 
-                <div className={`w-full flex flex-col ${getTransitionClass(3)}`}>
-                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8">
-                    {[
-                      { label: 'Total Database', val: (showDashboard && dashboardData && dashboardData.totalPatients !== undefined) ? dashboardData.totalPatients : database.length, icon: Users, color: 'sky', grad: 'from-sky-100 to-blue-100' },
-                      { label: 'Kunjungan Bulan Ini', val: (showDashboard && dashboardData && dashboardData.currentMonthVisits !== undefined) ? dashboardData.currentMonthVisits : database.filter(p => p.months[new Date().getMonth()] !== '-').length, icon: CheckCircle2, color: 'emerald', grad: 'from-emerald-100 to-teal-100' },
-                      { label: 'Status Penggabungan', val: 'Berhasil', icon: Activity, color: 'blue', grad: 'from-blue-100 to-indigo-100' },
-                    ].map((item, i) => (
-                      <div key={i} className={`glass-panel floating-panel-delay-${i} p-7 rounded-[2rem] border border-white/60 flex items-center justify-between shadow-xl shadow-sky-900/5 hover:-translate-y-1 transition-transform duration-300`}>
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.label}</p>
-                          <h3 className="text-3xl font-black text-slate-900 mt-1">{item.val}</h3>
-                        </div>
-                        <div className={`w-14 h-14 rounded-[1.5rem] bg-gradient-to-br ${item.grad} flex items-center justify-center text-${item.color}-600 border border-white/80 shadow-inner`}><item.icon className="w-7 h-7" /></div>
-                      </div>
-                    ))}
+                <div className={`w-full flex flex-col h-full pb-10 ${getTransitionClass(3)}`}>
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-6">
+                    <div>
+                      <h2 className="text-3xl font-black text-emerald-600 tracking-tight flex items-center gap-3">
+                        <CheckCircle2 className="w-8 h-8" /> Data Berhasil Diupload
+                      </h2>
+                      <p className="text-slate-600 text-sm mt-2 font-medium">Data matriks di bawah ini telah berhasil disimpan dan disinkronisasi ke Google Spreadsheet.</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto mt-4 lg:mt-0">
+                      <button onClick={handleOpenKertasKerjaA} className="flex-1 lg:flex-none bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border border-indigo-400 px-4 py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-500/30">
+                        <FileSpreadsheet className="w-4 h-4" /> Kertas Kerja A
+                      </button>
+
+                      <button onClick={handleOpenPasteLink} className="flex-1 lg:flex-none bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white border border-orange-300 px-4 py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-orange-500/30">
+                        <ExternalLink className="w-4 h-4" /> Kertas Kerja B
+                      </button>
+
+                      <button onClick={exportFinalExcel} className="flex-1 lg:flex-none bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/30">
+                        <Download className="w-4 h-4" /> Export per Desa
+                      </button>
+
+                      <button onClick={handleCopyReport} className="flex-1 lg:flex-none glass-button text-white px-4 py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-500/30">
+                        <Copy className="w-4 h-4" /> Salin Laporan
+                      </button>
+
+                      <button onClick={handleResetDatabase} className="flex-1 lg:flex-none bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-4 py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
+                        <Trash2 className="w-4 h-4" /> Reset
+                      </button>
+                    </div>
                   </div>
 
-                  {showDashboard && dashboardData && (
-                    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
-                        <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                          <div className="p-2 bg-blue-500 text-white rounded-xl shadow-md"><BarChart3 className="w-6 h-6" /></div> Dashboard DM terkendali
-                        </h2>
-                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                          <button onClick={exportFinalExcel} className="flex-1 md:flex-none bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/30"><Download className="w-4 h-4" /> Export per Desa</button>
-                          <button onClick={handleCopyReport} className="flex-1 md:flex-none glass-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-500/30"><Copy className="w-4 h-4" /> Salin Laporan</button>
-                          <button onClick={handleOpenPasteLink} className="flex-1 md:flex-none bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white border border-orange-300 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-orange-500/30"><ExternalLink className="w-4 h-4" /> Kemenkes</button>
-                          <button onClick={handleResetDatabase} className="flex-1 md:flex-none bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm"><Trash2 className="w-4 h-4" /> Reset</button>
+                  {uploadResult && (
+                    <div className="glass-panel border border-emerald-500/30 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-emerald-900/10 relative flex-grow flex flex-col animate-in slide-in-from-bottom-10 duration-700">
+                      <div className="px-6 md:px-10 py-5 border-b border-emerald-500/20 bg-emerald-50/50 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-white p-2 rounded-xl border border-emerald-200 shadow-sm">
+                            <Database className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <span className="font-black text-emerald-900">Preview Data Terupload ({uploadResult.length} Pasien)</span>
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <ChartCard title="Pasien Dilayani Sesuai Standar" labels={dashboardData.labels.slice(0, 12)} data={dashboardData.values.slice(0, 12)} color="#0ea5e9" />
-                        <ChartCard title="Total Pasien Terkendali" labels={dashboardData.labels.slice(12, 17)} data={dashboardData.values.slice(12, 17)} color="#10b981" />
-                        <ChartCard title="Terkendali (Diberikan Obat)" labels={dashboardData.labels.slice(17, 22)} data={dashboardData.values.slice(17, 22)} color="#3b82f6" />
-                        <ChartCard title="Terkendali (Tanpa Obat)" labels={dashboardData.labels.slice(22, 27)} data={dashboardData.values.slice(22, 27)} color="#64748b" />
+                      
+                      <div className="overflow-x-auto min-h-[400px]">
+                        <table className="w-full border-collapse min-w-[1000px]">
+                          <thead className="sticky top-0 bg-white/90 backdrop-blur-md shadow-sm z-10">
+                            <tr>
+                              <th className="px-10 py-4 text-[11px] font-black text-slate-500 uppercase text-left tracking-[0.15em] border-b border-white/40">No</th>
+                              <th className="px-4 py-4 text-[11px] font-black text-slate-500 uppercase text-left tracking-[0.15em] border-b border-white/40">Profil Pasien</th>
+                              <th className="px-4 py-4 text-[11px] font-black text-slate-500 uppercase text-center tracking-[0.15em] border-b border-white/40">Tgl Diagnosa</th>
+                              {['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'].map(m => (
+                                <th key={m} className="px-2 py-4 text-[10px] font-black text-slate-500 text-center border-b border-white/40">{m}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/40 bg-white/30">
+                            {currentPaginatedData.map((patient, pIdx) => (
+                              <tr key={patient.id} className="hover:bg-white/60 transition-colors">
+                                <td className="px-10 py-4 font-bold text-slate-500 text-xs">
+                                  {startIndex + pIdx + 1}
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="flex flex-col">
+                                    <span className="font-bold text-slate-900 text-sm">{patient.name}</span>
+                                    <span className="text-[10px] text-emerald-600 font-bold mt-0.5">ID: {patient.id} | Desa: {patient.desa}</span>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4 text-center">
+                                  <span className="inline-block px-3 py-1 rounded-lg bg-white/60 border border-slate-200 text-slate-700 text-xs font-bold">{patient.diagnosaDate}</span>
+                                </td>
+                                {patient.months.map((status, idx) => (
+                                  <td key={idx} className="px-1 py-4 text-center">
+                                    {status && status !== '-' ? (
+                                      <span className="inline-block px-2 py-1 rounded-lg bg-emerald-100/80 border border-emerald-200/50 text-emerald-800 text-[10px] font-bold backdrop-blur-sm shadow-sm">{status === "V" ? "OK" : status}</span>
+                                    ) : (
+                                      <span className="text-slate-400/50 font-medium">-</span>
+                                    )}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
+                      
+                      {/* Paginasi Footer */}
+                      {totalPages > 1 && (
+                        <div className="bg-white/70 backdrop-blur-md border-t border-emerald-500/20 px-6 md:px-10 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                          <span className="text-sm font-bold text-slate-600">
+                            Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, uploadResult.length)} dari {uploadResult.length} pasien
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                              disabled={currentPage === 1}
+                              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                              <ChevronLeft className="w-5 h-5" />
+                            </button>
+                            <span className="text-sm font-black text-emerald-700 px-2">
+                              Hal {currentPage} / {totalPages}
+                            </span>
+                            <button 
+                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                              disabled={currentPage === totalPages}
+                              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                              <ChevronRight className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -995,7 +937,7 @@
                     </div>
                   </div>
                   <div className="flex flex-col text-center mt-2 relative z-10">
-                    <span className="text-2xl md:text-3xl font-black tracking-tight text-white mb-2">{isSavingToSheet ? 'Menyiapkan Dashboard' : 'Memproses Data'}</span>
+                    <span className="text-2xl md:text-3xl font-black tracking-tight text-white mb-2">{isSavingToSheet ? 'Menyimpan Spreadsheet' : 'Memproses Data'}</span>
                     <span className="text-[11px] font-black text-sky-200 mt-3 uppercase tracking-[0.3em] drop-shadow-md">Sistem Sedang Bekerja</span>
                   </div>
                 </div>
