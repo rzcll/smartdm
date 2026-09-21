@@ -280,7 +280,7 @@
       };
 
       const handleResetDatabase = () => {
-        triggerConfirm('Reset Data Spreadsheet', 'PERINGATAN: Menghapus isian pada kolom C-R pada Sheet "Puskesmas". Lanjutkan?', 
+        triggerConfirm('Reset Data Spreadsheet', 'PERINGATAN: Menghapus isian pada kolom A-E dan H-S pada Sheet "Puskesmas". Lanjutkan?', 
           async () => {
             setIsProcessing(true);
             try {
@@ -534,18 +534,24 @@
         if (dataToSave.length === 0) return;
         setIsSavingToSheet(true);
         const todayStr = getTodayString();
-        const currentYear = new Date().getFullYear();
+        
+        // Mengambil tahun berjalan secara dinamis dari jam sistem (Otomatis)
+        const currentYear = new Date().getFullYear(); 
         
         const dataA = dataToSave.map(() => [loggedInUser]);
+        
+        // Memastikan seluruh data baris diset ke currentYear untuk Kolom B
         const dataB = dataToSave.map(() => [currentYear]); 
-        const dataC = dataToSave.map(p => [p.name]); 
-        const dataD = dataToSave.map(p => [p.diagnosaDate === todayStr ? "01/01/2025" : p.diagnosaDate]); 
-        const dataGR = dataToSave.map(p => p.months.map(m => m === '-' ? '' : m)); 
+        
+        const dataC = dataToSave.map(p => [p.colD]); // Mengisi C dengan kolom D excel dari langkah 1
+        const dataD = dataToSave.map(p => [p.name]); // Nama pasien maju ke kolom D
+        const dataE = dataToSave.map(p => [p.diagnosaDate === todayStr ? "01/01/2025" : p.diagnosaDate]); // Tgl Diagnosa maju ke E
+        const dataHS = dataToSave.map(p => p.months.map(m => m === '-' ? '' : m)); // Matriks Bulan di H-S
 
         try {
           const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ action: 'saveData', targetUrl: userTargetUrl, dataA: dataA, dataB: dataB, dataC: dataC, dataD: dataD, dataGR: dataGR })
+            body: JSON.stringify({ action: 'saveData', targetUrl: userTargetUrl, dataA: dataA, dataB: dataB, dataC: dataC, dataD: dataD, dataE: dataE, dataHS: dataHS })
           });
           const result = await response.json();
           setIsSavingToSheet(false);
