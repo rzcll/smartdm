@@ -648,6 +648,14 @@
                       <Home className="w-5 h-5 text-blue-500" /> <span className="hidden md:inline">Menu Awal</span>
                     </button>
                   )}
+                  {step !== 3 && (
+                    <button onClick={() => {
+                      if (!uploadResult) setUploadResult(database);
+                      setStep(3);
+                    }} className="neu-btn px-4 py-2.5 text-sm font-bold text-slate-600">
+                      <Database className="w-5 h-5 text-emerald-500" /> <span className="hidden md:inline">Preview Data</span>
+                    </button>
+                  )}
                   {database.length > 0 && (
                     <button onClick={() => triggerConfirm('Mulai Ulang Sesi Lokal', 'Hapus semua data matriks di layar Anda dan mulai kembali dari awal?', resetAllData, 'warning')} className="neu-btn px-4 py-2.5 text-sm font-bold text-slate-600">
                       <RefreshCw className="w-5 h-5 text-rose-500" /> <span className="hidden md:inline">Reset UI</span>
@@ -667,12 +675,14 @@
                       <h2 className="text-3xl font-black text-slate-700 tracking-tight">Langkah 1: Matriks Data</h2>
                       <p className="text-slate-500 text-sm mt-1 font-semibold">Ekstrak dan susun database pasien dari laporan bulanan.</p>
                     </div>
-                    {database.length > 0 && (
-                      <label className="neu-btn px-5 py-3 text-sm font-bold text-blue-600 cursor-pointer">
-                        <FolderOpen className="w-5 h-5" /> <span>Upload Ulang Folder</span>
-                        <input type="file" webkitdirectory="true" directory="true" multiple className="hidden" onChange={handleMonitoringUpload} />
-                      </label>
-                    )}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {database.length > 0 && (
+                        <label className="neu-btn px-5 py-3 text-sm font-bold text-blue-600 cursor-pointer">
+                          <FolderOpen className="w-5 h-5" /> <span>Upload Ulang Folder</span>
+                          <input type="file" webkitdirectory="true" directory="true" multiple className="hidden" onChange={handleMonitoringUpload} />
+                        </label>
+                      )}
+                    </div>
                   </div>
 
                   {database.length === 0 ? (
