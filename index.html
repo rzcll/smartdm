@@ -747,15 +747,21 @@
                                         <span className="text-[10px] text-blue-500 font-bold mt-0.5">ID: {patient.id} | Desa: {patient.desa}</span>
                                       </div>
                                     </td>
-                                    {patient.months.map((status, idx) => (
-                                      <td key={idx} className="px-1 py-4 text-center">
-                                        {status && status !== '-' ? (
-                                          <span className="neu-btn cursor-default px-3 py-1 text-emerald-600 text-[10px] font-bold !rounded-lg">{status === "V" ? "OK" : status}</span>
-                                        ) : (
-                                          <span className="text-slate-400 font-medium">-</span>
-                                        )}
-                                      </td>
-                                    ))}
+                                    {patient.months.map((status, idx) => {
+                                      const num = parseFloat(String(status).replace(',', '.'));
+                                      const isRed = !isNaN(num) && num > 130;
+                                      return (
+                                        <td key={idx} className="px-1 py-4 text-center">
+                                          {status && status !== '-' ? (
+                                            <span className={`neu-btn cursor-default px-3 py-1 text-[10px] font-bold !rounded-lg ${isRed ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                              {status === "V" ? "OK" : status}
+                                            </span>
+                                          ) : (
+                                            <span className="text-slate-400 font-medium">-</span>
+                                          )}
+                                        </td>
+                                      );
+                                    })}
                                   </tr>
                                 ))}
                               </tbody>
@@ -888,15 +894,21 @@
                                   <td className="px-4 py-4 text-center">
                                     <span className="neu-btn cursor-default px-3 py-1 text-slate-700 text-xs font-bold !rounded-lg">{patient.diagnosaDate}</span>
                                   </td>
-                                  {patient.months.map((status, idx) => (
-                                    <td key={idx} className="px-1 py-4 text-center">
-                                      {status && status !== '-' ? (
-                                        <span className="neu-btn cursor-default px-2 py-1 text-emerald-600 text-[10px] font-bold !rounded-lg">{status === "V" ? "OK" : status}</span>
-                                      ) : (
-                                        <span className="text-slate-400 font-medium">-</span>
-                                      )}
-                                    </td>
-                                  ))}
+                                  {patient.months.map((status, idx) => {
+                                    const num = parseFloat(String(status).replace(',', '.'));
+                                    const isRed = !isNaN(num) && num > 130;
+                                    return (
+                                      <td key={idx} className="px-1 py-4 text-center">
+                                        {status && status !== '-' ? (
+                                          <span className={`neu-btn cursor-default px-2 py-1 text-[10px] font-bold !rounded-lg ${isRed ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                            {status === "V" ? "OK" : status}
+                                          </span>
+                                        ) : (
+                                          <span className="text-slate-400 font-medium">-</span>
+                                        )}
+                                      </td>
+                                    );
+                                  })}
                                 </tr>
                               ))}
                             </tbody>
